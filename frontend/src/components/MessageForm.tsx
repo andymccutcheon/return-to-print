@@ -188,7 +188,7 @@ export function MessageForm({ onSuccess }: MessageFormProps) {
             <span>
               ┌─────────────────────┐
               <br />
-              │ SUBMIT TO PRINT │
+              │  SEND MESSAGE   │
               <br />
               └─────────────────────┘
             </span>
