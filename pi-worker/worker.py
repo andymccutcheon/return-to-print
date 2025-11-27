@@ -214,7 +214,7 @@ class PrinterWorker:
             content = message_data.get('content', '')
             sender_name = message_data.get('name', 'Anonymous')
             created_at = message_data.get('created_at', '')
-            message_number = message_data.get('message_number', 0)
+            message_number = int(message_data.get('message_number', 0))  # Convert to int
             
             # Parse timestamp
             try:
@@ -399,7 +399,7 @@ class PrinterWorker:
                 content = message['content']
                 sender_name = message.get('name', 'Anonymous')
                 created_at = message.get('created_at', 'unknown')
-                message_number = message.get('message_number', 0)
+                message_number = int(message.get('message_number', 0))  # Convert to int
                 
                 # Log message details (truncate long messages in log)
                 content_preview = content[:50] + "..." if len(content) > 50 else content
