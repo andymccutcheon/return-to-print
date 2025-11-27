@@ -25,9 +25,8 @@ export default function Home() {
         
         {/* Receipt Header */}
         <header className="px-6 pt-8 pb-4">
-          <div className="receipt-header text-sm mb-4">
-            <div className="text-center font-bold mb-1">RECEIPT ME</div>
-            <div className="text-center text-xs mb-3">Message Submission</div>
+          <div className="receipt-header mb-4">
+            <div className="text-center font-bold text-2xl mb-3">RECEIPT ME</div>
             <div className="separator-line"></div>
           </div>
           
@@ -42,13 +41,10 @@ export default function Home() {
         <section className="px-6 py-6">
           <div className="mb-4 text-center">
             <p className="receipt-text text-sm">
-              SUBMIT YOUR MESSAGE BELOW
+              THANKS FOR STOPPING BY!
             </p>
-            <p className="receipt-text text-xs mt-1">
-              IT WILL BE PRINTED ON A
-            </p>
-            <p className="receipt-text text-xs">
-              THERMAL RECEIPT PRINTER
+            <p className="receipt-text text-sm mt-1">
+              SEND US A MESSAGE BELOW!
             </p>
           </div>
 
@@ -62,7 +58,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="px-6 py-6 text-center">
           <p className="receipt-text text-xs mb-2">
-            THANK YOU FOR PRINTING
+            THANKS!
           </p>
           <p className="receipt-text text-xs font-bold">
             receiptme.xyz
