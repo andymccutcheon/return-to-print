@@ -216,11 +216,20 @@ class PrinterWorker:
             created_at = message_data.get('created_at', '')
             message_number = int(message_data.get('message_number', 0))  # Convert to int
             
-            # Parse timestamp
+            # Parse timestamp and convert to Mountain Time (MST/MDT)
             try:
-                dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-                date_str = dt.strftime('%m/%d/%Y')
-                time_str = dt.strftime('%I:%M %p')
+                from datetime import timezone, timedelta
+                
+                # Parse UTC timestamp
+                dt_utc = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                
+                # Convert to Mountain Time (UTC-7)
+                # Note: This doesn't handle DST automatically. For proper DST handling, use pytz
+                mountain_offset = timedelta(hours=-7)
+                dt_mountain = dt_utc.astimezone(timezone(mountain_offset))
+                
+                date_str = dt_mountain.strftime('%m/%d/%Y')
+                time_str = dt_mountain.strftime('%I:%M %p MST')
             except:
                 date_str = "N/A"
                 time_str = "N/A"
