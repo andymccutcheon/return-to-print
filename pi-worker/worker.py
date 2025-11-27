@@ -228,25 +228,25 @@ class PrinterWorker:
             # Format message number as 3-digit (001, 002, etc.)
             msg_id = f"{message_number:03d}"
             
-            # Print header
-            self.printer.set(align='center', font='a', width=2, height=2, bold=True)
-            self.printer.text("RECEIPT ME\n")
-            self.printer.set(align='center', font='a', width=1, height=1)
-            self.printer.text("=" * 32 + "\n\n")
+            # Print header - RECEIPT ME in large bold
+            self.printer.set(align='center', font='a', width=3, height=3, bold=True)
+            self.printer.text("RECEIPT ME\n\n")
+            self.printer.set(align='center', font='a', width=1, height=1, bold=False)
+            self.printer.text("=" * 48 + "\n\n")
             
-            # Print To: field
+            # Print To: field (normal size)
             self.printer.set(align='left', font='a', width=1, height=1, bold=True)
             self.printer.text("TO: ")
             self.printer.set(bold=False)
             self.printer.text("Andy, Annie, Newt & Harold\n\n")
             
-            # Print Message ID
+            # Print Message ID (normal size)
             self.printer.set(bold=True)
             self.printer.text("MSG: ")
             self.printer.set(bold=False)
             self.printer.text(f"#{msg_id}\n\n")
             
-            # Print Date/Time
+            # Print Date/Time (normal size)
             self.printer.set(bold=True)
             self.printer.text("DATE: ")
             self.printer.set(bold=False)
@@ -256,24 +256,25 @@ class PrinterWorker:
             self.printer.set(bold=False)
             self.printer.text(f"{time_str}\n\n")
             
-            # Print From: field
+            # Print From: field (normal size)
             self.printer.set(bold=True)
             self.printer.text("FROM: ")
             self.printer.set(bold=False)
             self.printer.text(f"{sender_name}\n\n")
             
             # Separator
-            self.printer.text("-" * 32 + "\n\n")
+            self.printer.set(align='center')
+            self.printer.text("-" * 48 + "\n\n")
             
-            # Print message content (BIGGER FONT)
-            self.printer.set(align='left', font='a', width=2, height=2, bold=False)
+            # Print message content (BIGGER FONT - stands out from metadata)
+            self.printer.set(align='left', font='a', width=2, height=3, bold=False)
             self.printer.text(content + "\n\n")
             
             # Print footer
             self.printer.set(align='center', font='a', width=1, height=1)
-            self.printer.text("-" * 32 + "\n")
+            self.printer.text("-" * 48 + "\n")
             self.printer.text("receiptme.xyz\n")
-            self.printer.text("-" * 32 + "\n\n\n")
+            self.printer.text("-" * 48 + "\n\n\n")
             
             # Cut paper
             self.printer.cut()
