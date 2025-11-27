@@ -1,0 +1,35 @@
+version: 1
+
+# AWS Amplify build specification for Return-to-Print Frontend
+# This builds and deploys the Next.js frontend application
+
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Installing frontend dependencies..."
+        - cd frontend
+        - npm ci
+        - echo "Node version:"
+        - node --version
+        - echo "NPM version:"
+        - npm --version
+    
+    build:
+      commands:
+        - echo "Building Next.js application..."
+        - npm run build
+        - echo "Build completed successfully"
+  
+  artifacts:
+    baseDirectory: frontend/.next
+    files:
+      - '**/*'
+  
+  cache:
+    paths:
+      - frontend/node_modules/**/*
+
+# Environment variables will be set in Amplify Console:
+# - NEXT_PUBLIC_API_BASE_URL: API Gateway endpoint URL
+

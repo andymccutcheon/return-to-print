@@ -1,0 +1,29 @@
+{
+  "version": "2.0",
+  "app_name": "message-printer-api",
+  "stages": {
+    "prod": {
+      "api_gateway_stage": "prod",
+      "autogen_policy": false,
+      "manage_iam_role": false,
+      "iam_role_arn": "arn:aws:iam::809581002583:role/return-to-print-lambda-role-prod",
+      "environment_variables": {
+        "DYNAMODB_TABLE": "return-to-print-messages-prod"
+      },
+      "lambda_timeout": 10,
+      "lambda_memory_size": 256
+    },
+    "dev": {
+      "api_gateway_stage": "dev",
+      "autogen_policy": false,
+      "manage_iam_role": false,
+      "iam_role_arn": "arn:aws:iam::809581002583:role/return-to-print-lambda-role-prod",
+      "environment_variables": {
+        "DYNAMODB_TABLE": "return-to-print-messages-prod"
+      },
+      "lambda_timeout": 10,
+      "lambda_memory_size": 256
+    }
+  }
+}
+

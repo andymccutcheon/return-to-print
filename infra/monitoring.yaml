@@ -1,0 +1,313 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudWatch Monitoring for Return-to-Print (Alarms and Dashboard)
+
+Parameters:
+  AlarmEmail:
+    Type: String
+    Default: ""
+    Description: Email address for alarm notifications (optional)
+  
+  ApiGatewayId:
+    Type: String
+    Default: ""
+    Description: API Gateway REST API ID (leave empty if not deployed yet)
+  
+  LambdaFunctionName:
+    Type: String
+    Default: return-to-print-api-prod
+    Description: Lambda function name
+
+Conditions:
+  HasEmail: !Not [!Equals [!Ref AlarmEmail, ""]]
+  HasApiGateway: !Not [!Equals [!Ref ApiGatewayId, ""]]
+
+Resources:
+  # SNS Topic (imported from core infrastructure)
+  AlarmEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasEmail
+    Properties:
+      Protocol: email
+      TopicArn: !ImportValue return-to-print-infra-AlarmTopicArn
+      Endpoint: !Ref AlarmEmail
+
+  # DynamoDB Alarms
+  DynamoDBThrottledReadsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: return-to-print-dynamodb-throttled-reads
+      AlarmDescription: Alert when DynamoDB read requests are throttled
+      MetricName: UserErrors
+      Namespace: AWS/DynamoDB
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: TableName
+          Value: !ImportValue return-to-print-infra-TableName
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  DynamoDBSystemErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: return-to-print-dynamodb-system-errors
+      AlarmDescription: Alert when DynamoDB encounters system errors
+      MetricName: SystemErrors
+      Namespace: AWS/DynamoDB
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: TableName
+          Value: !ImportValue return-to-print-infra-TableName
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  # Lambda Alarms
+  LambdaErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: return-to-print-lambda-errors
+      AlarmDescription: Alert when Lambda function has errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref LambdaFunctionName
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  LambdaThrottlesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: return-to-print-lambda-throttles
+      AlarmDescription: Alert when Lambda function is throttled
+      MetricName: Throttles
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref LambdaFunctionName
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  LambdaDurationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: return-to-print-lambda-duration
+      AlarmDescription: Alert when Lambda duration is high (p99)
+      MetricName: Duration
+      Namespace: AWS/Lambda
+      ExtendedStatistic: p99
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 5000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref LambdaFunctionName
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  # API Gateway Alarms (conditional - only if API Gateway ID is provided)
+  ApiGateway5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasApiGateway
+    Properties:
+      AlarmName: return-to-print-api-5xx-errors
+      AlarmDescription: Alert when API Gateway has 5xx errors
+      MetricName: 5XXError
+      Namespace: AWS/ApiGateway
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: return-to-print-api-prod
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  ApiGateway4xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasApiGateway
+    Properties:
+      AlarmName: return-to-print-api-4xx-errors
+      AlarmDescription: Alert when API Gateway has high 4xx error rate
+      MetricName: 4XXError
+      Namespace: AWS/ApiGateway
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 50
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: return-to-print-api-prod
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  ApiGatewayLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasApiGateway
+    Properties:
+      AlarmName: return-to-print-api-latency
+      AlarmDescription: Alert when API Gateway latency is high
+      MetricName: Latency
+      Namespace: AWS/ApiGateway
+      ExtendedStatistic: p99
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 3000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: return-to-print-api-prod
+      AlarmActions:
+        - !ImportValue return-to-print-infra-AlarmTopicArn
+      TreatMissingData: notBreaching
+
+  # CloudWatch Dashboard
+  MonitoringDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: return-to-print-monitoring
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/DynamoDB", "ConsumedReadCapacityUnits", {"stat": "Sum"}],
+                  [".", "ConsumedWriteCapacityUnits", {"stat": "Sum"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "DynamoDB - Read/Write Capacity",
+                "period": 300,
+                "dimensions": {
+                  "TableName": "${AWS::StackName}"
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/DynamoDB", "UserErrors", {"stat": "Sum"}],
+                  [".", "SystemErrors", {"stat": "Sum"}],
+                  [".", "ConditionalCheckFailedRequests", {"stat": "Sum"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "DynamoDB - Errors",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/Lambda", "Invocations", {"stat": "Sum", "label": "Invocations"}],
+                  [".", "Errors", {"stat": "Sum", "label": "Errors"}],
+                  [".", "Throttles", {"stat": "Sum", "label": "Throttles"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda - Invocations & Errors",
+                "period": 300,
+                "dimensions": {
+                  "FunctionName": "${LambdaFunctionName}"
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/Lambda", "Duration", {"stat": "Average", "label": "Avg Duration"}],
+                  ["...", {"stat": "p99", "label": "P99 Duration"}],
+                  ["...", {"stat": "Maximum", "label": "Max Duration"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda - Duration (ms)",
+                "period": 300,
+                "dimensions": {
+                  "FunctionName": "${LambdaFunctionName}"
+                },
+                "yAxis": {
+                  "left": {
+                    "label": "Milliseconds"
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/Lambda", "ConcurrentExecutions", {"stat": "Maximum"}]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Lambda - Concurrent Executions",
+                "period": 300,
+                "dimensions": {
+                  "FunctionName": "${LambdaFunctionName}"
+                }
+              }
+            },
+            {
+              "type": "log",
+              "properties": {
+                "query": "SOURCE '/aws/lambda/${LambdaFunctionName}'\n| fields @timestamp, @message\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 20",
+                "region": "${AWS::Region}",
+                "title": "Lambda - Recent Errors",
+                "stacked": false
+              }
+            }
+          ]
+        }
+
+Outputs:
+  DashboardUrl:
+    Description: CloudWatch Dashboard URL
+    Value: !Sub https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=return-to-print-monitoring
+
+  AlarmTopicArn:
+    Description: SNS Topic ARN for alarms
+    Value: !ImportValue return-to-print-infra-AlarmTopicArn
+
+  AlarmCount:
+    Description: Number of alarms created
+    Value: !If [HasApiGateway, "9", "6"]
+

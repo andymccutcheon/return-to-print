@@ -1,0 +1,32 @@
+[Unit]
+Description=Return-to-Print Printer Worker
+Documentation=https://github.com/andymccutcheon/return-to-print
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/return-to-print/pi-worker
+ExecStart=/usr/bin/python3 /home/pi/return-to-print/pi-worker/worker.py
+
+# Restart configuration
+Restart=always
+RestartSec=10
+
+# Output to systemd journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=printer-worker
+
+# Environment configuration
+Environment="PYTHONUNBUFFERED=1"
+
+# Security hardening (optional but recommended)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+

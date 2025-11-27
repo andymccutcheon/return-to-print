@@ -1,0 +1,107 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS Amplify App Configuration for Return-to-Print Frontend
+
+Parameters:
+  GitHubRepository:
+    Type: String
+    Default: https://github.com/andymccutcheon/return-to-print
+    Description: GitHub repository URL
+  
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: GitHub branch to deploy
+  
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: GitHub Personal Access Token (Classic) with repo permissions
+  
+  ApiBaseUrl:
+    Type: String
+    Default: https://placeholder-api.execute-api.us-west-2.amazonaws.com/prod
+    Description: API Gateway base URL (update after backend is deployed)
+
+Resources:
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name: return-to-print
+      Repository: !Ref GitHubRepository
+      AccessToken: !Ref GitHubToken
+      Platform: WEB
+      BuildSpec: |
+        version: 1
+        frontend:
+          phases:
+            preBuild:
+              commands:
+                - cd frontend
+                - npm ci
+            build:
+              commands:
+                - npm run build
+          artifacts:
+            baseDirectory: frontend/.next
+            files:
+              - '**/*'
+          cache:
+            paths:
+              - frontend/node_modules/**/*
+      EnvironmentVariables:
+        - Name: NEXT_PUBLIC_API_BASE_URL
+          Value: !Ref ApiBaseUrl
+      CustomRules:
+        - Source: /<*>
+          Target: /index.html
+          Status: 404-200
+      Tags:
+        - Key: Project
+          Value: ReturnToPrint
+        - Key: Environment
+          Value: production
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId: !GetAtt AmplifyApp.AppId
+      BranchName: !Ref GitHubBranch
+      EnableAutoBuild: true
+      EnablePullRequestPreview: false
+      Stage: PRODUCTION
+      Tags:
+        - Key: Project
+          Value: ReturnToPrint
+
+  # Domain association (can be added after DNS propagates)
+  # AmplifyDomain:
+  #   Type: AWS::Amplify::Domain
+  #   Properties:
+  #     AppId: !GetAtt AmplifyApp.AppId
+  #     DomainName: returntoprint.xyz
+  #     EnableAutoSubDomain: false
+  #     SubDomainSettings:
+  #       - Prefix: www
+  #         BranchName: !GetAtt AmplifyBranch.BranchName
+
+Outputs:
+  AmplifyAppId:
+    Description: Amplify App ID
+    Value: !GetAtt AmplifyApp.AppId
+    Export:
+      Name: return-to-print-amplify-app-id
+
+  AmplifyAppArn:
+    Description: Amplify App ARN
+    Value: !GetAtt AmplifyApp.Arn
+
+  AmplifyDefaultDomain:
+    Description: Amplify default domain
+    Value: !GetAtt AmplifyApp.DefaultDomain
+
+  AmplifyAppUrl:
+    Description: Amplify app URL
+    Value: !Sub https://${GitHubBranch}.${AmplifyApp.DefaultDomain}
+
