@@ -78,13 +78,14 @@ class TestCreateMessageEndpoint:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Test message'})
+            body=json.dumps({'name': 'John', 'content': 'Test message'})
         )
         
         assert response.status_code == 201
         body = response.json_body
         
         assert 'id' in body
+        assert body['name'] == 'John'
         assert body['content'] == 'Test message'
         assert body['printed'] == 'false'
         assert body['printed_at'] is None
@@ -95,7 +96,7 @@ class TestCreateMessageEndpoint:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': ''})
+            body=json.dumps({'name': 'John', 'content': ''})
         )
         
         assert response.status_code == 400
@@ -108,7 +109,7 @@ class TestCreateMessageEndpoint:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': '   '})
+            body=json.dumps({'name': 'John', 'content': '   '})
         )
         
         assert response.status_code == 400
@@ -119,7 +120,7 @@ class TestCreateMessageEndpoint:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': long_content})
+            body=json.dumps({'name': 'John', 'content': long_content})
         )
         
         assert response.status_code == 400
@@ -129,21 +130,53 @@ class TestCreateMessageEndpoint:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({})
+            body=json.dumps({'name': 'John'})
+        )
+        
+        assert response.status_code == 400
+    
+    def test_create_message_missing_name(self, dynamodb_table, test_client):
+        """Test that missing name field returns 400."""
+        response = test_client.http.post(
+            '/message',
+            headers={'Content-Type': 'application/json'},
+            body=json.dumps({'content': 'Test message'})
+        )
+        
+        assert response.status_code == 400
+    
+    def test_create_message_empty_name(self, dynamodb_table, test_client):
+        """Test that empty name returns 400."""
+        response = test_client.http.post(
+            '/message',
+            headers={'Content-Type': 'application/json'},
+            body=json.dumps({'name': '', 'content': 'Test message'})
+        )
+        
+        assert response.status_code == 400
+    
+    def test_create_message_name_too_long(self, dynamodb_table, test_client):
+        """Test that name over 50 chars returns 400."""
+        long_name = 'a' * 51
+        response = test_client.http.post(
+            '/message',
+            headers={'Content-Type': 'application/json'},
+            body=json.dumps({'name': long_name, 'content': 'Test message'})
         )
         
         assert response.status_code == 400
     
     def test_create_message_trims_whitespace(self, dynamodb_table, test_client):
-        """Test that content is trimmed."""
+        """Test that content and name are trimmed."""
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': '  Test  '})
+            body=json.dumps({'name': '  John  ', 'content': '  Test  '})
         )
         
         assert response.status_code == 201
         body = response.json_body
+        assert body['name'] == 'John'
         assert body['content'] == 'Test'
 
 
@@ -166,12 +199,12 @@ class TestGetRecentMessagesEndpoint:
         test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Message 1'})
+            body=json.dumps({'name': 'Alice', 'content': 'Message 1'})
         )
         test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Message 2'})
+            body=json.dumps({'name': 'Bob', 'content': 'Message 2'})
         )
         
         response = test_client.http.get('/messages/recent')
@@ -180,6 +213,9 @@ class TestGetRecentMessagesEndpoint:
         body = response.json_body
         assert 'messages' in body
         assert len(body['messages']) == 2
+        # Verify name field is included
+        assert 'name' in body['messages'][0]
+        assert 'name' in body['messages'][1]
 
 
 @mock_aws
@@ -201,7 +237,7 @@ class TestGetNextToPrintEndpoint:
         create_response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Test message'})
+            body=json.dumps({'name': 'John', 'content': 'Test message'})
         )
         created_msg = create_response.json_body
         
@@ -212,6 +248,7 @@ class TestGetNextToPrintEndpoint:
         body = response.json_body
         assert body['message'] is not None
         assert body['message']['id'] == created_msg['id']
+        assert body['message']['name'] == 'John'
         assert body['message']['printed'] == 'false'
     
     def test_next_to_print_skips_printed(self, dynamodb_table, test_client):
@@ -222,7 +259,7 @@ class TestGetNextToPrintEndpoint:
         msg1 = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'First'})
+            body=json.dumps({'name': 'Alice', 'content': 'First'})
         ).json_body
         
         time.sleep(0.01)
@@ -231,7 +268,7 @@ class TestGetNextToPrintEndpoint:
         msg2 = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Second'})
+            body=json.dumps({'name': 'Bob', 'content': 'Second'})
         ).json_body
         
         # Mark first as printed
@@ -260,7 +297,7 @@ class TestMarkPrintedEndpoint:
         create_response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Test message'})
+            body=json.dumps({'name': 'John', 'content': 'Test message'})
         )
         message_id = create_response.json_body['id']
         
@@ -319,7 +356,7 @@ class TestCORS:
         response = test_client.http.post(
             '/message',
             headers={'Content-Type': 'application/json'},
-            body=json.dumps({'content': 'Test'})
+            body=json.dumps({'name': 'John', 'content': 'Test'})
         )
         
         # Chalice test client may not expose CORS headers directly

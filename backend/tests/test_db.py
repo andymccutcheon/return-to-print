@@ -65,10 +65,11 @@ class TestDatabaseOperations:
         from chalicelib import db
         
         # Create message
-        message = db.create_message("Test message content")
+        message = db.create_message("John", "Test message content")
         
         # Verify message structure
         assert 'id' in message
+        assert message['name'] == "John"
         assert message['content'] == "Test message content"
         assert message['printed'] == 'false'
         assert message['printed_at'] is None
@@ -90,11 +91,11 @@ class TestDatabaseOperations:
         import time
         
         # Create multiple messages with slight delays
-        msg1 = db.create_message("First message")
+        msg1 = db.create_message("Alice", "First message")
         time.sleep(0.01)
-        msg2 = db.create_message("Second message")
+        msg2 = db.create_message("Bob", "Second message")
         time.sleep(0.01)
-        msg3 = db.create_message("Third message")
+        msg3 = db.create_message("Charlie", "Third message")
         
         # Get recent messages
         messages = db.get_recent_messages()
@@ -111,7 +112,7 @@ class TestDatabaseOperations:
         
         # Create 15 messages
         for i in range(15):
-            db.create_message(f"Message {i}")
+            db.create_message(f"User{i}", f"Message {i}")
         
         # Get only 10
         messages = db.get_recent_messages(limit=10)
@@ -130,11 +131,11 @@ class TestDatabaseOperations:
         import time
         
         # Create multiple messages
-        msg1 = db.create_message("First message")
+        msg1 = db.create_message("Alice", "First message")
         time.sleep(0.01)
-        msg2 = db.create_message("Second message")
+        msg2 = db.create_message("Bob", "Second message")
         time.sleep(0.01)
-        msg3 = db.create_message("Third message")
+        msg3 = db.create_message("Charlie", "Third message")
         
         # Get next unprinted
         next_msg = db.get_next_unprinted()
@@ -149,9 +150,9 @@ class TestDatabaseOperations:
         import time
         
         # Create messages
-        msg1 = db.create_message("First message")
+        msg1 = db.create_message("Alice", "First message")
         time.sleep(0.01)
-        msg2 = db.create_message("Second message")
+        msg2 = db.create_message("Bob", "Second message")
         
         # Mark first as printed
         db.mark_message_printed(msg1['id'])
@@ -168,7 +169,7 @@ class TestDatabaseOperations:
         from chalicelib import db
         
         # Create message
-        message = db.create_message("Test message")
+        message = db.create_message("John", "Test message")
         
         # Mark as printed
         db.mark_message_printed(message['id'])
@@ -189,7 +190,7 @@ class TestDatabaseOperations:
         from chalicelib import db
         
         # Create message
-        message = db.create_message("Test message")
+        message = db.create_message("John", "Test message")
         
         # Mark as printed twice
         db.mark_message_printed(message['id'])

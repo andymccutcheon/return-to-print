@@ -1,6 +1,32 @@
 """Input validation functions for the message printer API."""
 
 
+def validate_name(name: str | None) -> str:
+    """Validate name meets requirements.
+    
+    Args:
+        name: Raw name from user input
+        
+    Returns:
+        Validated and trimmed name
+        
+    Raises:
+        ValueError: If name is invalid (empty, too long, or None)
+    """
+    if name is None:
+        raise ValueError("Name is required")
+    
+    trimmed = name.strip()
+    
+    if not trimmed:
+        raise ValueError("Name cannot be empty or whitespace only")
+    
+    if len(trimmed) > 50:
+        raise ValueError(f"Name too long: {len(trimmed)} characters (max 50)")
+    
+    return trimmed
+
+
 def validate_message_content(content: str | None) -> str:
     """Validate message content meets requirements.
     

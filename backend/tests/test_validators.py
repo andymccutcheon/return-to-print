@@ -10,6 +10,53 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'message_printe
 from chalicelib import validators
 
 
+class TestValidateName:
+    """Tests for validate_name function."""
+    
+    def test_valid_name(self):
+        """Test that valid name passes validation."""
+        result = validators.validate_name("John")
+        assert result == "John"
+    
+    def test_name_with_whitespace_trimmed(self):
+        """Test that name is trimmed of leading/trailing whitespace."""
+        result = validators.validate_name("  John Doe  ")
+        assert result == "John Doe"
+    
+    def test_none_name_raises_error(self):
+        """Test that None name raises ValueError."""
+        with pytest.raises(ValueError, match="Name is required"):
+            validators.validate_name(None)
+    
+    def test_empty_name_raises_error(self):
+        """Test that empty name raises ValueError."""
+        with pytest.raises(ValueError, match="cannot be empty"):
+            validators.validate_name("")
+    
+    def test_whitespace_only_name_raises_error(self):
+        """Test that whitespace-only name raises ValueError."""
+        with pytest.raises(ValueError, match="cannot be empty"):
+            validators.validate_name("   ")
+    
+    def test_name_exactly_50_chars_valid(self):
+        """Test that name with exactly 50 characters is valid."""
+        name = "a" * 50
+        result = validators.validate_name(name)
+        assert result == name
+        assert len(result) == 50
+    
+    def test_name_51_chars_raises_error(self):
+        """Test that name over 50 characters raises ValueError."""
+        name = "a" * 51
+        with pytest.raises(ValueError, match="too long"):
+            validators.validate_name(name)
+    
+    def test_name_with_special_characters(self):
+        """Test that name with special characters is handled correctly."""
+        result = validators.validate_name("María José")
+        assert result == "María José"
+
+
 class TestValidateMessageContent:
     """Tests for validate_message_content function."""
     

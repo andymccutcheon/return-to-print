@@ -11,6 +11,7 @@ export interface Message {
   created_at: string; // ISO 8601 timestamp
   printed: 'true' | 'false'; // String, not boolean!
   printed_at: string | null; // ISO 8601 timestamp or null
+  message_number: number; // Sequential message ID (1, 2, 3, ...)
 }
 
 /**

@@ -19,23 +19,27 @@ def create_message():
     """Create a new message to be printed.
     
     Request Body:
-        {"content": "string (1-280 characters)"}
+        {
+            "name": "string (1-50 characters)",
+            "content": "string (1-280 characters)"
+        }
         
     Returns:
-        201: Full message object with id, content, created_at, printed, printed_at
-        400: Validation error (empty or too long)
+        201: Full message object with id, name, content, created_at, printed, printed_at
+        400: Validation error (empty, too long, or missing fields)
         500: Server error
     """
     try:
         # Parse and validate request body
         body = app.current_request.json_body or {}
-        app.log.info(f"Creating message with content length: {len(body.get('content', ''))}")
+        app.log.info(f"Creating message from: {body.get('name', 'unknown')}")
         
-        # Validate content
+        # Validate name and content
+        name = validators.validate_name(body.get('name'))
         content = validators.validate_message_content(body.get('content'))
         
         # Create message in database
-        message = db.create_message(content)
+        message = db.create_message(name, content)
         
         app.log.info(f"Successfully created message with id: {message['id']}")
         

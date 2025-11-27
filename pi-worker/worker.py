@@ -183,18 +183,22 @@ class PrinterWorker:
             logger.error(f"Unexpected error fetching message: {e}", exc_info=True)
             return None
     
-    def print_message(self, content: str) -> bool:
+    def print_message(self, message_data: dict) -> bool:
         """
         Print message content on thermal receipt printer.
         
         Formats the message with:
-        - Header with branding
-        - Message content (left-aligned)
+        - Header with RECEIPT ME branding
+        - To: field
+        - Message ID
+        - Date/time
+        - From: field
+        - Message content (bigger font)
         - Footer with domain
         - Paper cut at the end
         
         Args:
-            content: The message text to print
+            message_data: Dictionary with keys: content, name, created_at, message_number
         
         Returns:
             bool: True if print successful, False otherwise
@@ -204,26 +208,77 @@ class PrinterWorker:
             return False
         
         try:
+            from datetime import datetime
+            
+            # Extract message data
+            content = message_data.get('content', '')
+            sender_name = message_data.get('name', 'Anonymous')
+            created_at = message_data.get('created_at', '')
+            message_number = message_data.get('message_number', 0)
+            
+            # Parse timestamp
+            try:
+                dt = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                date_str = dt.strftime('%m/%d/%Y')
+                time_str = dt.strftime('%I:%M %p')
+            except:
+                date_str = "N/A"
+                time_str = "N/A"
+            
+            # Format message number as 3-digit (001, 002, etc.)
+            msg_id = f"{message_number:03d}"
+            
             # Print header
+            self.printer.set(align='center', font='a', width=2, height=2, bold=True)
+            self.printer.text("RECEIPT ME\n")
             self.printer.set(align='center', font='a', width=1, height=1)
-            self.printer.text("=" * 32 + "\n")
-            self.printer.text("  PENNANT MESSAGE\n")
             self.printer.text("=" * 32 + "\n\n")
             
-            # Print message content
-            self.printer.set(align='left', font='b', width=1, height=1)
+            # Print To: field
+            self.printer.set(align='left', font='a', width=1, height=1, bold=True)
+            self.printer.text("TO: ")
+            self.printer.set(bold=False)
+            self.printer.text("Andy, Annie, Newt\n    & Harold\n\n")
+            
+            # Print Message ID
+            self.printer.set(bold=True)
+            self.printer.text("MSG: ")
+            self.printer.set(bold=False)
+            self.printer.text(f"#{msg_id}\n\n")
+            
+            # Print Date/Time
+            self.printer.set(bold=True)
+            self.printer.text("DATE: ")
+            self.printer.set(bold=False)
+            self.printer.text(f"{date_str}\n")
+            self.printer.set(bold=True)
+            self.printer.text("TIME: ")
+            self.printer.set(bold=False)
+            self.printer.text(f"{time_str}\n\n")
+            
+            # Print From: field
+            self.printer.set(bold=True)
+            self.printer.text("FROM: ")
+            self.printer.set(bold=False)
+            self.printer.text(f"{sender_name}\n\n")
+            
+            # Separator
+            self.printer.text("-" * 32 + "\n\n")
+            
+            # Print message content (BIGGER FONT)
+            self.printer.set(align='left', font='a', width=2, height=2, bold=False)
             self.printer.text(content + "\n\n")
             
             # Print footer
             self.printer.set(align='center', font='a', width=1, height=1)
             self.printer.text("-" * 32 + "\n")
-            self.printer.text("returntoprint.xyz\n")
+            self.printer.text("receiptme.xyz\n")
             self.printer.text("-" * 32 + "\n\n\n")
             
             # Cut paper
             self.printer.cut()
             
-            logger.info("Message printed successfully")
+            logger.info(f"Message #{msg_id} printed successfully")
             return True
         
         except USBNotFoundError:
@@ -342,18 +397,20 @@ class PrinterWorker:
                 # Extract message details
                 message_id = message['id']
                 content = message['content']
+                sender_name = message.get('name', 'Anonymous')
                 created_at = message.get('created_at', 'unknown')
+                message_number = message.get('message_number', 0)
                 
                 # Log message details (truncate long messages in log)
                 content_preview = content[:50] + "..." if len(content) > 50 else content
                 logger.info(
-                    f"Processing message {message_id[:8]}... "
+                    f"Processing message #{message_number:03d} from {sender_name} "
                     f"(created: {created_at})"
                 )
                 logger.info(f"Content: {content_preview}")
                 
                 # Print the message
-                if self.print_message(content):
+                if self.print_message(message):
                     # Successfully printed, now mark as printed in backend
                     if self.mark_as_printed(message_id):
                         logger.info(f"✓ Message {message_id[:8]}... completed successfully")

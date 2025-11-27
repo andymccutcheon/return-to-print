@@ -22,10 +22,43 @@ table = dynamodb.Table(TABLE_NAME)
 GSI_NAME = 'PrintedStatusIndex'
 
 
-def create_message(content: str) -> Message:
+def get_message_counter() -> int:
+    """Get and increment the message counter atomically.
+    
+    Returns:
+        The next message number
+    """
+    counter_id = 'message_counter'
+    
+    try:
+        response = table.update_item(
+            Key={'id': counter_id},
+            UpdateExpression='ADD message_count :inc',
+            ExpressionAttributeValues={':inc': 1},
+            ReturnValues='UPDATED_NEW'
+        )
+        return int(response['Attributes']['message_count'])
+    except ClientError as e:
+        # If counter doesn't exist, initialize it
+        if e.response['Error']['Code'] == 'ValidationException':
+            try:
+                table.put_item(Item={'id': counter_id, 'message_count': 1})
+                return 1
+            except:
+                pass
+        # Fallback: count existing messages + 1
+        try:
+            response = table.scan(Select='COUNT')
+            return response.get('Count', 0) + 1
+        except:
+            return 1
+
+
+def create_message(name: str, content: str) -> Message:
     """Create a new message in the database.
     
     Args:
+        name: Validated sender name (1-50 characters)
         content: Validated message content (1-280 characters)
         
     Returns:
@@ -36,13 +69,16 @@ def create_message(content: str) -> Message:
     """
     message_id = str(uuid.uuid4())
     now = datetime.utcnow().isoformat() + 'Z'
+    message_number = get_message_counter()
     
     message: Message = {
         'id': message_id,
+        'name': name,
         'content': content,
         'created_at': now,
         'printed': 'false',  # String for GSI compatibility
-        'printed_at': None
+        'printed_at': None,
+        'message_number': message_number  # Sequential counter
     }
     
     try:
