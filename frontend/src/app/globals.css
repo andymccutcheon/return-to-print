@@ -1,35 +1,152 @@
 @import "tailwindcss";
 
-/* Thermal Printer Aesthetic Enhancements */
+/* Receipt Printer Aesthetic */
 
-/* Custom scrollbar for a cleaner look */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* Receipt-style monospace text */
-.receipt-text {
-  font-family: 'Courier New', 'Courier', monospace;
-  line-height: 1.5;
+/* Root styles - set monospace font globally */
+body {
+  font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
+  background: #FFFEF7;
+  color: #000000;
   letter-spacing: 0.02em;
 }
 
-/* Printer animation */
-@keyframes print {
+/* Receipt paper container */
+.receipt-paper {
+  background: #FFFFFF;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Perforated edge effect */
+.perforation-top {
+  border-top: 2px dashed #cccccc;
+  position: relative;
+}
+
+.perforation-top::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    #FFFEF7 8px,
+    #FFFEF7 12px
+  );
+}
+
+.perforation-bottom {
+  border-bottom: 2px dashed #cccccc;
+  position: relative;
+}
+
+.perforation-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    #FFFEF7 8px,
+    #FFFEF7 12px
+  );
+}
+
+/* Receipt text styling */
+.receipt-text {
+  font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+/* Dotted separator line */
+.separator-line {
+  border-top: 1px dotted #999999;
+  margin: 1rem 0;
+}
+
+/* Receipt header ASCII styling */
+.receipt-header {
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+/* Receipt date stamp */
+.date-stamp {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Form input receipt style */
+input[type="text"],
+textarea {
+  font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
+  border: 1px solid #000000;
+  background: #FFFFFF;
+  padding: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* Receipt button style */
+.receipt-button {
+  font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  border: 2px solid #000000;
+  background: #FFFFFF;
+  color: #000000;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.receipt-button:hover:not(:disabled) {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+.receipt-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #666666;
+  color: #666666;
+}
+
+/* Loading text animation */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0.3;
+  }
+}
+
+.processing-text {
+  animation: blink 1s infinite;
+}
+
+/* Paper feed animation */
+@keyframes paper-feed {
   0% {
     transform: translateY(-10px);
     opacity: 0;
@@ -40,37 +157,71 @@
   }
 }
 
-.animate-print {
-  animation: print 0.3s ease-out;
+.animate-paper-feed {
+  animation: paper-feed 0.3s ease-out;
 }
 
-/* Fade in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Success/error messages - receipt style */
+.receipt-message {
+  border: 1px solid #000000;
+  padding: 0.75rem;
+  margin: 1rem 0;
+  text-align: center;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
+.receipt-message.success {
+  background: #FFFFFF;
+  border-style: double;
+  border-width: 3px;
 }
 
-/* Skip to main content link (for screen readers) */
+.receipt-message.error {
+  background: #000000;
+  color: #FFFFFF;
+  border-width: 2px;
+}
+
+/* Character counter - receipt style */
+.char-counter {
+  font-size: 0.75rem;
+  text-align: right;
+  letter-spacing: 0.05em;
+  font-family: 'Courier New', 'Courier', monospace;
+}
+
+/* Custom scrollbar for receipt feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFFEF7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border: 1px solid #FFFEF7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+/* Skip to main content link (accessibility) */
 .skip-to-main {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 50;
   transform: translateY(-100%);
-  background-color: #2563eb;
-  color: white;
+  background-color: #000000;
+  color: #FFFFFF;
   padding: 0.5rem 1rem;
-  border-bottom-right-radius: 0.5rem;
+  font-family: 'Courier New', 'Courier', monospace;
+  border: 2px solid #000000;
   transition: transform 0.2s;
 }
 
@@ -105,4 +256,12 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ASCII art helpers */
+.ascii-art {
+  line-height: 1.2;
+  white-space: pre;
+  font-family: 'Courier New', 'Courier', monospace;
+  letter-spacing: 0;
 }

@@ -8,17 +8,20 @@ interface MessageFormProps {
 }
 
 export function MessageForm({ onSuccess }: MessageFormProps) {
+  const [name, setName] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const trimmedName = name.trim();
+  const trimmedContent = content.trim();
   const charCount = content.length;
   const maxChars = 280;
+  const maxNameChars = 50;
   const isOverLimit = charCount > maxChars;
-  const isNearLimit = charCount >= 260 && charCount <= maxChars;
-  const trimmedContent = content.trim();
-  const isValid = trimmedContent.length > 0 && !isOverLimit;
+  const isNameOverLimit = name.length > maxNameChars;
+  const isValid = trimmedName.length > 0 && trimmedContent.length > 0 && !isOverLimit && !isNameOverLimit;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,40 +30,52 @@ export function MessageForm({ onSuccess }: MessageFormProps) {
     setError(null);
     setSuccessMessage(null);
     
-    // Validate
+    // Validate name
+    if (!trimmedName) {
+      setError('NAME REQUIRED');
+      return;
+    }
+    
+    if (isNameOverLimit) {
+      setError(`NAME TOO LONG (${name.length}/${maxNameChars})`);
+      return;
+    }
+    
+    // Validate content
     if (!trimmedContent) {
-      setError('Message cannot be empty');
+      setError('MESSAGE REQUIRED');
       return;
     }
     
     if (isOverLimit) {
-      setError(`Message is too long (${charCount} characters, max ${maxChars})`);
+      setError(`MESSAGE TOO LONG (${charCount}/${maxChars})`);
       return;
     }
     
     setIsLoading(true);
     
     try {
-      await createMessage(trimmedContent);
+      await createMessage(trimmedName, trimmedContent);
       
       // Success!
+      setName('');
       setContent('');
-      setSuccessMessage('Message sent! It will be printed soon.');
+      setSuccessMessage('MESSAGE QUEUED FOR PRINTING');
       
       // Call success callback
       if (onSuccess) {
         onSuccess();
       }
       
-      // Clear success message after 3 seconds
+      // Clear success message after 4 seconds
       setTimeout(() => {
         setSuccessMessage(null);
-      }, 3000);
+      }, 4000);
     } catch (err) {
       if (err instanceof ApiRequestError) {
-        setError(err.message);
+        setError(err.message.toUpperCase());
       } else {
-        setError('Failed to send message. Please try again.');
+        setError('FAILED TO SEND. TRY AGAIN.');
       }
     } finally {
       setIsLoading(false);
@@ -69,115 +84,123 @@ export function MessageForm({ onSuccess }: MessageFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
-      <div className="space-y-2">
-        <label htmlFor="message" className="block text-sm font-medium">
-          Your Message
+      {/* Name Field */}
+      <div className="space-y-1">
+        <label htmlFor="name" className="block receipt-text text-sm font-bold">
+          NAME:
+        </label>
+        <input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name..."
+          maxLength={60}
+          disabled={isLoading}
+          className={`
+            w-full px-3 py-2 receipt-text text-sm
+            border-2 bg-white
+            disabled:opacity-50 disabled:cursor-not-allowed
+            ${isNameOverLimit 
+              ? 'border-black bg-black text-white' 
+              : 'border-black'
+            }
+          `}
+          aria-describedby="name-counter"
+        />
+        <div 
+          id="name-counter"
+          className={`
+            char-counter text-xs
+            ${isNameOverLimit ? 'font-bold' : ''}
+          `}
+        >
+          {name.length} / {maxNameChars}
+        </div>
+      </div>
+
+      {/* Message Field */}
+      <div className="space-y-1">
+        <label htmlFor="message" className="block receipt-text text-sm font-bold">
+          MSG:
         </label>
         <textarea
           id="message"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Type your message to be printed..."
-          rows={4}
-          maxLength={300} // Allow typing a bit over to show error
+          placeholder="Type your message..."
+          rows={5}
+          maxLength={300}
           disabled={isLoading}
           className={`
-            w-full px-4 py-3 rounded-lg border-2 
-            font-mono text-base resize-none
-            focus:outline-none focus:ring-2 focus:ring-offset-2
+            w-full px-3 py-2 receipt-text text-sm
+            border-2 resize-none bg-white
             disabled:opacity-50 disabled:cursor-not-allowed
-            transition-colors
             ${isOverLimit 
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-              : isNearLimit
-                ? 'border-yellow-500 focus:border-yellow-500 focus:ring-yellow-500'
-                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+              ? 'border-black bg-black text-white' 
+              : 'border-black'
             }
           `}
-          aria-describedby="char-count error-message"
+          aria-describedby="message-counter"
         />
-        
         <div 
-          id="char-count"
+          id="message-counter"
           className={`
-            text-sm font-mono text-right
-            transition-colors
-            ${isOverLimit 
-              ? 'text-red-600 font-bold' 
-              : isNearLimit
-                ? 'text-yellow-600 font-semibold'
-                : 'text-gray-600'
-            }
+            char-counter text-xs
+            ${isOverLimit ? 'font-bold' : ''}
           `}
-          aria-live="polite"
         >
-          {charCount} / {maxChars} characters
+          {charCount} / {maxChars} CHAR MAX
         </div>
       </div>
 
+      {/* Error Message */}
       {error && (
         <div 
-          id="error-message"
-          className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm"
+          className="receipt-message error"
           role="alert"
         >
-          {error}
+          ⚠ {error}
         </div>
       )}
 
+      {/* Success Message */}
       {successMessage && (
         <div 
-          className="p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm"
+          className="receipt-message success animate-paper-feed"
           role="status"
         >
           ✓ {successMessage}
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={!isValid || isLoading}
-        className={`
-          w-full px-6 py-3 rounded-lg font-semibold text-base
-          transition-all duration-200
-          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-          ${!isValid || isLoading
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-md hover:shadow-lg'
-          }
-        `}
-        aria-busy={isLoading}
-      >
-        {isLoading ? (
-          <span className="flex items-center justify-center">
-            <svg 
-              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle 
-                className="opacity-25" 
-                cx="12" 
-                cy="12" 
-                r="10" 
-                stroke="currentColor" 
-                strokeWidth="4"
-              />
-              <path 
-                className="opacity-75" 
-                fill="currentColor" 
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            Sending...
-          </span>
-        ) : (
-          'Send to Printer'
-        )}
-      </button>
+      {/* Submit Button */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={!isValid || isLoading}
+          className="w-full receipt-button text-sm"
+          aria-busy={isLoading}
+        >
+          {isLoading ? (
+            <span className="processing-text">PROCESSING...</span>
+          ) : (
+            <span>
+              ┌─────────────────────┐
+              <br />
+              │ SUBMIT TO PRINT │
+              <br />
+              └─────────────────────┘
+            </span>
+          )}
+        </button>
+      </div>
+
+      {isLoading && (
+        <div className="text-center text-xs receipt-text processing-text">
+          QUEUING MESSAGE...
+        </div>
+      )}
     </form>
   );
 }
-

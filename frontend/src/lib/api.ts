@@ -23,14 +23,25 @@ export class ApiRequestError extends Error {
 /**
  * Create a new message
  * 
+ * @param name - Sender name (1-50 characters)
  * @param content - Message content (1-280 characters)
  * @returns The created message object
  * @throws {ApiRequestError} If the request fails or validation fails
  */
-export async function createMessage(content: string): Promise<Message> {
+export async function createMessage(name: string, content: string): Promise<Message> {
+  const trimmedName = name.trim();
   const trimmedContent = content.trim();
   
-  // Client-side validation
+  // Client-side validation for name
+  if (!trimmedName) {
+    throw new ApiRequestError('Name cannot be empty', 400);
+  }
+  
+  if (trimmedName.length > 50) {
+    throw new ApiRequestError(`Name too long: ${trimmedName.length} characters (max 50)`, 400);
+  }
+  
+  // Client-side validation for content
   if (!trimmedContent) {
     throw new ApiRequestError('Message content cannot be empty', 400);
   }
@@ -45,7 +56,7 @@ export async function createMessage(content: string): Promise<Message> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ content: trimmedContent } as CreateMessageRequest),
+      body: JSON.stringify({ name: trimmedName, content: trimmedContent } as CreateMessageRequest),
     });
     
     if (!response.ok) {

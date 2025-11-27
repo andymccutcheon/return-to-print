@@ -6,6 +6,7 @@
  */
 export interface Message {
   id: string;
+  name: string; // Sender name (1-50 characters)
   content: string;
   created_at: string; // ISO 8601 timestamp
   printed: 'true' | 'false'; // String, not boolean!
@@ -16,6 +17,7 @@ export interface Message {
  * Request payload for creating a new message
  */
 export interface CreateMessageRequest {
+  name: string; // Sender name (required, 1-50 characters)
   content: string;
 }
 
