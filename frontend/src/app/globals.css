@@ -17,12 +17,14 @@ body {
   margin: 0 auto;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   position: relative;
+  overflow: hidden; /* Prevent pseudo-elements from extending beyond */
 }
 
 /* Perforated edge effect */
 .perforation-top {
   border-top: 2px dashed #cccccc;
   position: relative;
+  width: 100%;
 }
 
 .perforation-top::before {
@@ -31,6 +33,7 @@ body {
   top: -6px;
   left: 0;
   right: 0;
+  width: 100%;
   height: 4px;
   background: repeating-linear-gradient(
     90deg,
@@ -44,6 +47,7 @@ body {
 .perforation-bottom {
   border-bottom: 2px dashed #cccccc;
   position: relative;
+  width: 100%;
 }
 
 .perforation-bottom::after {
@@ -52,6 +56,7 @@ body {
   bottom: -6px;
   left: 0;
   right: 0;
+  width: 100%;
   height: 4px;
   background: repeating-linear-gradient(
     90deg,

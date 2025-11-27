@@ -25,16 +25,13 @@ export default function Home() {
         
         {/* Receipt Header */}
         <header className="px-6 pt-8 pb-4">
-          <div className="receipt-header text-lg mb-4">
-            <div className="ascii-art text-center">
-═══════════════════════════
-   RETURN TO PRINT
-   Message Submission
-═══════════════════════════
-            </div>
+          <div className="receipt-header text-sm mb-4">
+            <div className="text-center font-bold mb-1">RETURN TO PRINT</div>
+            <div className="text-center text-xs mb-3">Message Submission</div>
+            <div className="separator-line"></div>
           </div>
           
-          <div className="date-stamp text-center text-black">
+          <div className="date-stamp text-center text-black mt-3">
             DATE: {dateStr}  TIME: {timeStr}
           </div>
         </header>
@@ -71,11 +68,11 @@ export default function Home() {
             returntoprint.xyz
           </p>
           <div className="mt-4 text-xs">
-            <div className="ascii-art text-center text-[10px] leading-tight">
--------------------------------
-  A PUBLIC ART INSTALLATION
--------------------------------
+            <div className="separator-line mb-2"></div>
+            <div className="text-center text-[10px]">
+              A PUBLIC ART INSTALLATION
             </div>
+            <div className="separator-line mt-2"></div>
           </div>
         </footer>
 
