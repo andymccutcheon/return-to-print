@@ -78,7 +78,7 @@ echo ""
 # Step 3: Install Python dependencies
 echo -e "${BLUE}[3/6] Installing Python dependencies...${NC}"
 if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
-    pip3 install --user -r "$SCRIPT_DIR/requirements.txt"
+    pip3 install --user --break-system-packages -r "$SCRIPT_DIR/requirements.txt"
     echo -e "${GREEN}✓ Python dependencies installed${NC}"
 else
     echo -e "${RED}ERROR: requirements.txt not found${NC}"
