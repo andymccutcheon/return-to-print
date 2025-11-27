@@ -116,8 +116,8 @@ textarea:focus {
   font-weight: bold;
   letter-spacing: 0.1em;
   border: 2px solid #000000;
-  background: #FFFFFF;
-  color: #000000;
+  background: #000000;
+  color: #FFFFFF;
   padding: 0.75rem 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -125,15 +125,16 @@ textarea:focus {
 }
 
 .receipt-button:hover:not(:disabled) {
-  background: #000000;
-  color: #FFFFFF;
+  background: #FFFFFF;
+  color: #000000;
 }
 
 .receipt-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  background: #666666;
   border-color: #666666;
-  color: #666666;
+  color: #FFFFFF;
 }
 
 /* Loading text animation */
