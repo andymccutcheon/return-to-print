@@ -67,13 +67,6 @@ export default function Home() {
           <p className="receipt-text text-xs font-bold">
             returntoprint.xyz
           </p>
-          <div className="mt-4 text-xs">
-            <div className="separator-line mb-2"></div>
-            <div className="text-center text-[10px]">
-              A PUBLIC ART INSTALLATION
-            </div>
-            <div className="separator-line mt-2"></div>
-          </div>
         </footer>
 
         {/* Bottom Perforation */}
