@@ -238,7 +238,7 @@ class PrinterWorker:
             self.printer.set(align='left', font='a', width=1, height=1, bold=True)
             self.printer.text("TO: ")
             self.printer.set(bold=False)
-            self.printer.text("Andy, Annie, Newt\n    & Harold\n\n")
+            self.printer.text("Andy, Annie, Newt & Harold\n\n")
             
             # Print Message ID
             self.printer.set(bold=True)
