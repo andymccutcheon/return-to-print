@@ -1,18 +1,32 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { MessageForm } from '@/components/MessageForm';
 
 export default function Home() {
-  // Get current date/time for receipt header
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', { 
+  // State for current date/time that updates in real-time
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Update every 1 second
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format date and time
+  const dateStr = currentTime.toLocaleDateString('en-GB', { 
     day: '2-digit', 
     month: '2-digit', 
     year: 'numeric' 
   }).replace(/\//g, '/');
-  const timeStr = now.toLocaleTimeString('en-US', { 
+  const timeStr = currentTime.toLocaleTimeString('en-US', { 
     hour: '2-digit', 
     minute: '2-digit',
+    second: '2-digit',
     hour12: false 
   });
 
