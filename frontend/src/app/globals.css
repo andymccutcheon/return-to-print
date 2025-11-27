@@ -5,7 +5,7 @@
 /* Root styles - set monospace font globally */
 body {
   font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
-  background: #f3f4f6;
+  background: #f3f4f6 url('/background.png') center center / cover no-repeat fixed;
   color: #000000;
   letter-spacing: 0.02em;
 }

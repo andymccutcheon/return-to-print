@@ -17,7 +17,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       {/* Receipt Paper Container */}
       <main className="receipt-paper mx-auto">
         {/* Top Perforation */}
