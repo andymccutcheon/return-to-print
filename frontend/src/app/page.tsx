@@ -24,9 +24,9 @@ export default function Home() {
         <div className="perforation-top"></div>
         
         {/* Receipt Header */}
-        <header className="px-6 pt-8 pb-6">
-          <div className="receipt-header mb-4">
-            <div className="text-center font-bold text-2xl mb-4">RECEIPT ME</div>
+        <header className="px-6 pt-8 pb-4">
+          <div className="receipt-header mb-3">
+            <div className="text-center font-bold text-2xl mb-3">RECEIPT ME</div>
             <div className="separator-line"></div>
           </div>
           
@@ -38,8 +38,8 @@ export default function Home() {
         <div className="separator-line"></div>
 
         {/* Form Section */}
-        <section className="px-6 py-6">
-          <div className="mb-4 text-center">
+        <section className="px-6 pt-6 pb-4">
+          <div className="mb-6 text-center">
             <p className="receipt-text text-sm">
               THANKS FOR STOPPING BY!
             </p>
@@ -47,8 +47,6 @@ export default function Home() {
               SEND US A MESSAGE BELOW!
             </p>
           </div>
-
-          <div className="separator-line my-4"></div>
 
           <MessageForm />
         </section>
