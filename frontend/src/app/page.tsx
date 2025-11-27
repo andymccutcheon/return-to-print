@@ -17,7 +17,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FFFEF7] py-8 px-4">
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
       {/* Receipt Paper Container */}
       <main className="receipt-paper mx-auto">
         {/* Top Perforation */}
@@ -26,7 +26,7 @@ export default function Home() {
         {/* Receipt Header */}
         <header className="px-6 pt-8 pb-4">
           <div className="receipt-header text-sm mb-4">
-            <div className="text-center font-bold mb-1">RETURN TO PRINT</div>
+            <div className="text-center font-bold mb-1">RECEIPT ME</div>
             <div className="text-center text-xs mb-3">Message Submission</div>
             <div className="separator-line"></div>
           </div>
@@ -65,7 +65,7 @@ export default function Home() {
             THANK YOU FOR PRINTING
           </p>
           <p className="receipt-text text-xs font-bold">
-            returntoprint.xyz
+            receiptme.xyz
           </p>
         </footer>
 

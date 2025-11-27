@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Return to Print - Send Messages to the Thermal Printer",
+  title: "Receipt Me - Send Messages to the Thermal Printer",
   description: "A public art installation where your messages are printed on a thermal receipt printer. Submit your message and watch it join the queue!",
   keywords: ["thermal printer", "art installation", "public art", "receipt printer", "interactive art"],
-  authors: [{ name: "Return to Print" }],
+  authors: [{ name: "Receipt Me" }],
   openGraph: {
-    title: "Return to Print - Thermal Printer Messages",
+    title: "Receipt Me - Thermal Printer Messages",
     description: "Send messages to be printed on a thermal receipt printer",
     type: "website",
-    siteName: "Return to Print",
+    siteName: "Receipt Me",
   },
 };
 

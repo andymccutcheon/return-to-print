@@ -5,7 +5,7 @@
 /* Root styles - set monospace font globally */
 body {
   font-family: 'Courier New', 'Courier', 'Lucida Console', monospace;
-  background: #FFFEF7;
+  background: #f3f4f6;
   color: #000000;
   letter-spacing: 0.02em;
 }
@@ -39,8 +39,8 @@ body {
     90deg,
     transparent,
     transparent 8px,
-    #FFFEF7 8px,
-    #FFFEF7 12px
+    #f3f4f6 8px,
+    #f3f4f6 12px
   );
 }
 
@@ -62,8 +62,8 @@ body {
     90deg,
     transparent,
     transparent 8px,
-    #FFFEF7 8px,
-    #FFFEF7 12px
+    #f3f4f6 8px,
+    #f3f4f6 12px
   );
 }
 
@@ -130,10 +130,9 @@ textarea:focus {
 }
 
 .receipt-button:disabled {
-  opacity: 0.4;
   cursor: not-allowed;
-  background: #666666;
-  border-color: #666666;
+  background: #000000;
+  border-color: #000000;
   color: #FFFFFF;
 }
 
@@ -204,12 +203,12 @@ textarea:focus {
 }
 
 ::-webkit-scrollbar-track {
-  background: #FFFEF7;
+  background: #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #000000;
-  border: 1px solid #FFFEF7;
+  border: 1px solid #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb:hover {

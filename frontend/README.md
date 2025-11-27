@@ -1,6 +1,6 @@
-# Return to Print Frontend
+# Receipt Me Frontend
 
-A Next.js 14 web application for the Return to Print thermal printer art installation. Users can submit messages that are queued and printed on a thermal receipt printer.
+A Next.js 14 web application for the Receipt Me thermal printer art installation. Users can submit messages that are queued and printed on a thermal receipt printer.
 
 ## Features
 
@@ -278,11 +278,11 @@ If the build fails:
 
 ## Contributing
 
-This is part of the Return to Print project. See the main repository for contribution guidelines.
+This is part of the Receipt Me project. See the main repository for contribution guidelines.
 
 ## License
 
-Part of the Return to Print thermal printer art installation project.
+Part of the Receipt Me thermal printer art installation project.
 
 ---
 
