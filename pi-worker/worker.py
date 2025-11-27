@@ -237,10 +237,9 @@ class PrinterWorker:
             # Format message number as 3-digit (001, 002, etc.)
             msg_id = f"{message_number:03d}"
             
-            # Print header - RECEIPT ME in EXTRA large bold
-            self.printer.set(align='center', font='a', width=4, height=4, bold=True)
-            self.printer.text("RECEIPT\n")
-            self.printer.text("ME\n\n")
+            # Print header - RECEIPT ME in large bold (one line)
+            self.printer.set(align='center', font='a', width=3, height=3, bold=True)
+            self.printer.text("RECEIPT ME\n\n")
             self.printer.set(align='center', font='a', width=1, height=1, bold=False)
             self.printer.text("=" * 48 + "\n\n")
             
